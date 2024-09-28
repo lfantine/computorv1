@@ -49,8 +49,8 @@ std::string NO_EQUAL() {
     return str;
 }
 
-static bool    parseOneLine(const char** argv) {
-    std::string arg = argv[1];
+static bool    parseOneLine(std::string arg) {
+    // std::string arg = argv[1];
 
     if (arg.size() <= 0) return logErrorWithPrefix("Please enter an equation as input");
 
@@ -79,12 +79,16 @@ static bool    parseOneLine(const char** argv) {
     return true;
 }
 
-static bool  parseMultipleLine(const char** argv) {
-    return (argv);
+static bool  parseMultipleLine(const char** argv, const int& argc) {
+    std::string input = "";
+    for (size_t i = 1; i < static_cast<size_t>(argc); i++) {
+        input += argv[i];
+    }
+    return parseOneLine(input);
 }
 
 bool  basisArgsParse(const int& argc, const char** argv) {
     if (argc <= 1) return logError(P_ERR + "You need to input some data.");
-    else if (argc == 2) return parseOneLine(argv);
-    else return parseMultipleLine(argv);
+    else if (argc == 2) return parseOneLine(argv[1]);
+    else return parseMultipleLine(argv, argc);
 }

@@ -10,6 +10,13 @@
 
 void    registerChunk(std::vector<chunk>& reg, chunk& ck) {
     // test is valid chunk
+    for (const parcel& p : ck.values) {
+        if (p.op == '/' && p.value == 0) {
+            logErrorWithPrefix("cannot divid by 0.");
+            throw new std::exception();
+        }
+    }
+
     reg.push_back(ck);
 }
 
@@ -382,7 +389,11 @@ int main(int argc, char** argv) {
 
     std::cout << "Your input is : " << YELLOW << input << RESET << std::endl;
 
-    chunkerize(input, equat, equal);
+    try {
+        chunkerize(input, equat, equal);
+    } catch (...) {
+        return 1;
+    }
 
 
     std::cout << "after chunkerize : " << GREEN;
