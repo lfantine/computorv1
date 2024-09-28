@@ -14,6 +14,9 @@ void    registerChunk(std::vector<chunk>& reg, chunk& ck) {
         if (p.op == '/' && p.value == 0) {
             logErrorWithPrefix("cannot divid by 0.");
             throw new std::exception();
+        } else if (p.op == C_VAR && ck.power > 2) {
+            logErrorWithPrefix("The polynomial degree is strictly greater than 2, I can't solve.");
+            throw new std::exception();
         }
     }
 
@@ -276,12 +279,13 @@ int pgdc(int a, int b) {
 }
 
 std::string    reduceSquareRootFraction(const float d, const float denom) {
+    float max = d > denom ? d : denom;
     int new_nom = d;
-    int new_denom = denom;
-    for (int i = 2; i < d; i++) {
+    float new_denom = denom;
+    for (int i = 2; i < max; i++) {
         if (!hasDecimalPart(d / i) && !hasDecimalPart(std::sqrt(d / i))) {
             const int t = std::sqrt(d / i);
-            if (!hasDecimalPart(denom / t) && i < new_nom) {
+            if (i < new_nom) {
                 new_nom = i;
                 new_denom = denom / t;
             }

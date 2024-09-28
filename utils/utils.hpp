@@ -62,7 +62,8 @@ std::string remove0(const std::string& str) {
 
 std::string to_string(const float& f) {
     std::string str = std::to_string(f);
-    return remove0(str);
+    // return remove0(str);
+    return str;
 }
 
 void printChunk(const chunk& ck, size_t idx) {
