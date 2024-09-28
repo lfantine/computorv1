@@ -245,20 +245,119 @@ void    reduce(std::vector<chunk>& equat, std::vector<chunk>& equal) {
     if (c2.values.size() > 0) equat.push_back(c2);
 }
 
-void    dPos(const float a, const float b, const float c, const float d) {
-    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
-    std::cout << "\n There are 2 solutions : ";
-    std::cout << "\n-> " << C_VAR << " = (-b-√(Δ))/2a " << " = " << "(-(" << b <<")-√(" << d <<"))/2(" << a <<") = " << (-b - (std::sqrt(d))) / (2 * a);
-    std::cout << "\n-> " << C_VAR << " = (-b+√(Δ))/2a " << " = " << "(-(" << b <<")+√(" << d <<"))/2(" << a <<") = " << (-b + (std::sqrt(d))) / (2 * a);
+bool hasDecimalPart(float num) {
+    // Comparer le nombre avec sa partie entière (tronquée)
+    return std::floor(num) != num;
 }
 
-void    d0(const float a, const float b, const float c, const float d) {
-    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
-    std::cout << "\n The solution of this equaton is " << C_VAR << " = " << "-b/2a" << " = " << "-(" << b << ")" << "/2(" << a << ")"  << " = " << -b / (2 * a) << std::endl;
+// Fonction pour trouver le PGCD de deux entiers (utilise l'algorithme d'Euclide)
+int pgdc(int a, int b) {
+    const int max = a > b ? a : b;
+    int pgdc = 1;
+    for (int i = 2; i <= max; i++ ) {
+        float moda = a;
+        float modb = b;
+        int na = 0;
+        int nb = 0;
+        while (moda >= i){moda -= i; na++;}
+        while (modb >= i){modb -= i; nb++;}
+        if (moda == 0 && modb == 0) {
+            pgdc = i;
+        }
+    }
+    return pgdc;
+}
+
+std::string    reduceSquareRootFraction(const float d, const float denom) {
+    int new_nom = d;
+    int new_denom = denom;
+    for (int i = 2; i < d; i++) {
+        if (!hasDecimalPart(d / i) && !hasDecimalPart(std::sqrt(d / i))) {
+            const int t = std::sqrt(d / i);
+            if (!hasDecimalPart(denom / t) && i < new_nom) {
+                new_nom = i;
+                new_denom = denom / t;
+            }
+        }
+    }
+    std::string r = "(√" + to_string(new_nom) + "/" + to_string(new_denom) + ")";
+    return r;
+}
+
+
+std::string     reducedFraction(const float nom, const float denom, const bool isD = false, const float d = 0) {
+    if (hasDecimalPart(nom) || hasDecimalPart(denom)) {
+        if (d > 0 && isD) {return reduceSquareRootFraction(d, denom);}
+        std::string r = "(";
+        if (isD) {
+            r += "√" + to_string(d);
+        } else {
+            r += to_string(nom);
+        }
+        r += "/" + to_string(denom) + ")";
+        return r;
+    }
+    // Calculer le PGCD
+    int gcd = pgdc(std::abs(nom), std::abs(denom));
+
+    // Simplifier la fraction en divisant par le PGCD
+    const float n_nom = nom / gcd;
+    const float n_denom = denom / gcd;
+    // std::cout << "[" << nom << "/" << gcd << "] ";
+
+    if (n_denom == 1) {
+        return to_string(n_nom);
+    } else if (gcd > 1) {
+        return "(" + to_string(n_nom) + "/" + to_string(n_denom) + ")";
+    } else {
+        if (d > 0 && isD) {return reduceSquareRootFraction(d, denom);}
+        std::string r = "(";
+        if (isD) {
+            r += "√" + to_string(d);
+        } else {
+            r += to_string(nom);
+        }
+        r += "/" + to_string(denom) + ")";
+        return r;
+    }
 }
 
 void    dNeg(const float a, const float b, const float c, const float d) {
     std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
+    std::cout << "\n There are 2 solutions with i a complexe number (i^2=-1) : ";
+    const float aa = 2 * a;
+    const float mb = (b * -1);
+    std::cout << "\n-> " << C_VAR << " = (-b-i√(Δ))/2a " << " = " << "(-(" << b <<")-i√(" << d <<"))/2(" << a <<") = " << "(-(" << b <<")-i√(" << d <<"))/"<< aa <<" = " << reducedFraction(mb, aa) << " - i" << reducedFraction(std::sqrt(std::abs(d)), aa, true, std::abs(d));
+    std::cout << "\n-> " << C_VAR << " = (-b+i√(Δ))/2a " << " = " << "(-(" << b <<")+i√(" << d <<"))/2(" << a <<") = " << "(-(" << b <<")+i√(" << d <<"))/"<< aa <<" = " << reducedFraction(mb, aa) << " + i" << reducedFraction(std::sqrt(std::abs(d)), aa, true, std::abs(d));
+}
+
+void    dPos(const float a, const float b, const float c, const float d) {
+    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
+    std::cout << "\n There are 2 solutions : ";
+    // const float r1 = (-b - (std::sqrt(d))) / (2 * a);
+    // const float r2 = (-b + (std::sqrt(d))) / (2 * a);
+
+    std::cout << "\n-> " << C_VAR << " = (-b-√(Δ))/2a " << " = " << "(-(" << b <<")-√(" << d <<"))/2(" << a <<") = ";
+    if (hasDecimalPart(std::sqrt(d))) {
+        std::cout << reducedFraction(-b, (2 * a)) << " - " << reducedFraction(std::sqrt(std::abs(d)), (2 * a), true, d);
+    } else {
+        // std::cout << to_string(r1);
+        float nom = (b * -1) - std::sqrt(d);
+        std::cout << reducedFraction(nom, (2 * a));
+    }
+    std::cout << "\n-> " << C_VAR << " = (-b+√(Δ))/2a " << " = " << "(-(" << b <<")+√(" << d <<"))/2(" << a <<") = ";
+    if (hasDecimalPart(std::sqrt(d))) {
+        std :: cout << reducedFraction(-b, (2 * a)) << " + " << reducedFraction(std::sqrt(std::abs(d)), (2 * a), true, d);
+    } else {
+        float nom = (b * -1) + std::sqrt(d);
+        std::cout << reducedFraction(nom, (2 * a));
+        // std::cout << to_string(r2);
+    }
+}
+
+void    d0(const float a, const float b, const float c, const float d) {
+    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
+    std::cout << "\n The solution of this equaton is " << C_VAR << " = " << "-b/2a" << " = " << "-(" << b << ")" << "/2(" << a << ")"  << " = " << (b * -1) / (2 * a) << std::endl;
 }
 
 void    allReal() {
