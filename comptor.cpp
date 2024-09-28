@@ -282,21 +282,39 @@ std::string    reduceSquareRootFraction(const float d, const float denom) {
     float max = d > denom ? d : denom;
     int new_nom = d;
     float new_denom = denom;
+    float keep_m = 0;
     for (int i = 2; i < max; i++) {
         if (!hasDecimalPart(d / i) && !hasDecimalPart(std::sqrt(d / i))) {
             const int t = std::sqrt(d / i);
             if (i < new_nom) {
                 new_nom = i;
-                new_denom = denom / t;
+                if (!hasDecimalPart(denom / t)) {
+                    new_denom = denom / t;
+                    keep_m = 0;
+                } else {
+                    keep_m = t;
+                }
             }
         }
     }
-    std::string r = "(√" + to_string(new_nom) + "/" + to_string(new_denom) + ")";
+    std::string r = "(";
+    if (keep_m != 0) {
+        int gcd = pgdc(std::abs(keep_m), std::abs(new_denom));
+        r += to_string(keep_m / gcd) + "√" + to_string(new_nom) + "/" + to_string(new_denom / gcd) + ")";
+    } else {
+        r += "√" + to_string(new_nom) + "/" + to_string(new_denom) + ")";
+    }
     return r;
 }
 
 
-std::string     reducedFraction(const float nom, const float denom, const bool isD = false, const float d = 0) {
+std::string     reducedFraction(float nom, float denom, const bool isD = false, const float d = 0) {
+
+    if (denom < 0) {
+        nom *= -1;
+        denom *= -1;
+    }
+
     if (hasDecimalPart(nom) || hasDecimalPart(denom)) {
         if (d > 0 && isD) {return reduceSquareRootFraction(d, denom);}
         std::string r = "(";
@@ -367,14 +385,31 @@ void    dPos(const float a, const float b, const float c, const float d) {
 }
 
 void    d0(const float a, const float b, const float c, const float d) {
-    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
-    std::cout << "\n The solution of this equaton is " << C_VAR << " = " << "-b/2a" << " = " << "-(" << b << ")" << "/2(" << a << ")"  << " = " << (b * -1) / (2 * a) << std::endl;
+    std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )" << std::endl;
+    std::cout << "\n The solution of this equaton is " << C_VAR << " = " << "-b/2a" << " = " << "-(" << b << ")" << "/2(" << a << ")"  << " = " << reducedFraction((b * -1), (2 * a));
 }
 
 void    allReal() {
     std::cout << "\n*------------- Equation of type X = X  --------------------*" << std::endl;
     std::cout << "\n For this equation, every real value can be a solution." << std::endl;
     std::cout << "\n => X ∈ ℝ\n" << std::endl;
+}
+
+int deg1(float b, float c) {
+    std::cout << "\n*------------- Equation of type aX + b = 0  --------------------*" << std::endl;
+    float mc = -c;
+
+    std::cout << "\n 1 -> Get " << C_VAR << " on 1 side : " << b << C_VAR << " = " << mc << std::endl;
+
+    std::cout << "\n 2 -> Get " << C_VAR << " : " << C_VAR << " = " << mc << " / " << b << std::endl;
+
+    std::cout << "\n 3 -> Solution is : " << C_VAR << " = ";
+    if (b != 1) {
+        std::cout << reducedFraction(mc, b) << std::endl;
+    } else {
+        std::cout << mc << std::endl;
+    }
+    return 0;
 }
 
 int main(int argc, char** argv) {
@@ -457,6 +492,10 @@ int main(int argc, char** argv) {
     std::cout << "\n a : " << a << std::endl;
     std::cout << " b : " << b << std::endl;
     std::cout << " c : " << c << std::endl;
+
+    if (a == 0) {
+        return deg1(b , c);
+    }
 
     std::cout << "\n*------------- Now let's calc Δ --------------------*" << std::endl;
 
