@@ -52,9 +52,21 @@ chunk    initChunk() {
 };
 
 std::string remove0(const std::string& str) {
+    bool cut = true;
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == '.') {
+            cut = false;
+        }
+    }
+    if (cut) {
+        return str;
+    }
     size_t end = str.size();
     while (end > 0 && (str[end - 1] == '0' || str[end - 1] == '.')) {
         --end; // Décrémenter end tant que le dernier caractère est '0'
+        if (str[end] == '.') {
+            break;
+        }
     }
     return str.substr(0, end);
 }
@@ -173,11 +185,21 @@ std::vector<std::string> split(const std::string& line, char delimiter) {
     return result;
 }
 
+bool    isStrWhite(const std::string& str) {
+    for (size_t i = 0; i < str.length(); i++) {
+        if (!std::isspace(str[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 // Fonction pour séparer les éléments d'une ligne en utilisant plusieurs délimiteurs
 std::vector<std::string> split_chunks(const std::string& line, std::vector<char>& ops) {
     const std::string delimiters = "+-=";
     std::vector<std::string> result;
     std::string item;
+    
     
     bool last_neg = false;
     // Parcourir la chaîne de caractères
@@ -185,13 +207,13 @@ std::vector<std::string> split_chunks(const std::string& line, std::vector<char>
         // Si le caractère fait partie des délimiteurs, on ajoute l'élément courant
         if (delimiters.find(ch) != std::string::npos) {
             item = trim(item);
-            if (!item.empty()) {
+            if (!item.empty() && !isStrWhite(item)) {
                 result.push_back(last_neg ? std::string("-" + item) : std::string("+" + item));
                 last_neg = false;
                 item.clear();
             }
             if (ch == '-') last_neg = true;
-            ops.push_back(ch);
+            if (!isStrWhite(item)) {ops.push_back(ch);}
         } else {
             item += ch;
         }

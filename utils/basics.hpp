@@ -61,7 +61,7 @@ static bool    parseOneLine(std::string arg) {
         if (std::isspace(static_cast<unsigned char>(arg[i]))) continue;
         if (is_not_valid(arg[i])) return logErrorWithPrefix("Some invalid char are present in input");
         if (is_valid_special(arg[i]) || is_equal_char(arg[i])) {
-            if (is_valid_special(last_char)) {
+            if (is_valid_special(last_char) && i != 0) {
                 return logErrorWithPrefix("Can't put 2 op in line");
             }
         }

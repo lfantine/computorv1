@@ -33,10 +33,11 @@ void    chunkerize(const std::string& str, std::vector<chunk>& equat, std::vecto
             break;
         }
     }
+    std::cout << "equal_idx = " << equal_idx << std::endl;
 
     for (size_t idx = 0; idx < raw_chunks.size(); idx++) {
         const std::string str = raw_chunks[idx];
-        // std::cout << str << std::endl;
+        std::cout << str << " => " << idx << std::endl;
         size_t i = 0;
         chunk   ck = initChunk();
 
@@ -99,10 +100,6 @@ void    chunkerize(const std::string& str, std::vector<chunk>& equat, std::vecto
                     }
                 }
 
-                // else {
-                //     std::cout << "c is not recognize : " << static_cast<int>(c) << std::endl;
-                // }
-                // std::cout << "last of t3 : " << str[i] << std::endl;
                 if (str[i] == '*' || str[i] == '/') { // permet de ne pas sauter le * quand il arrive a la fin de la parcel
                     i--;
                 }
@@ -330,9 +327,13 @@ std::string     reducedFraction(float nom, float denom, const bool isD = false, 
     int gcd = pgdc(std::abs(nom), std::abs(denom));
 
     // Simplifier la fraction en divisant par le PGCD
-    const float n_nom = nom / gcd;
+    float n_nom = nom / gcd;
     const float n_denom = denom / gcd;
     // std::cout << "[" << nom << "/" << gcd << "] ";
+
+    if (n_nom == -0) {
+        n_nom = 0;
+    }
 
     if (n_denom == 1) {
         return to_string(n_nom);
