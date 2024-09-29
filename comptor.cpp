@@ -34,6 +34,7 @@ void    chunkerize(const std::string& str, std::vector<chunk>& equat, std::vecto
         }
     }
     std::cout << "equal_idx = " << equal_idx << std::endl;
+    std::cout << "nb ops = " << ops.size() << std::endl;
 
     for (size_t idx = 0; idx < raw_chunks.size(); idx++) {
         const std::string str = raw_chunks[idx];
@@ -397,6 +398,7 @@ void    allReal() {
 }
 
 int deg1(float b, float c) {
+    std::cout << "\n Polynomial degree: 1 " << std::endl;
     std::cout << "\n*------------- Equation of type aX + b = 0  --------------------*" << std::endl;
     float mc = -c;
 
@@ -497,6 +499,8 @@ int main(int argc, char** argv) {
     if (a == 0) {
         return deg1(b , c);
     }
+
+    std::cout << "\n Polynomial degree: 2 " << std::endl;
 
     std::cout << "\n*------------- Now let's calc Δ --------------------*" << std::endl;
 

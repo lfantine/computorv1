@@ -27,18 +27,6 @@ static inline bool is_not_valid(char c) {
     special : 'white_space', 
 */
 
-// std::string NOT_VALID_CHAR_MESS(char c) {
-//     std::string str = "\'";
-//     str += c + "\' is not a valid character.";
-//     return str;
-// }
-
-// std::string TEST() {
-//     std::string str = "Multiple operators are not allowed_ inline.";
-//     return str;
-// }
-
-
 std::string TOO_MANY_EQUALS() {
     std::string str = "Multiple \'=\' is prohibed!";
     return str;
@@ -49,6 +37,13 @@ std::string NO_EQUAL() {
     return str;
 }
 
+
+std::string NO_VAR() {
+    std::string str = "You need at least 1 \'";
+    str += C_VAR + "\' !";
+    return str;
+}
+
 static bool    parseOneLine(std::string arg) {
     // std::string arg = argv[1];
 
@@ -56,10 +51,12 @@ static bool    parseOneLine(std::string arg) {
 
     char last_char = arg[0];
     int equal_count = 0;
+    bool var_present = false;
     
     for (size_t i = 0; i < arg.size(); i++) {
         if (std::isspace(static_cast<unsigned char>(arg[i]))) continue;
         if (is_not_valid(arg[i])) return logErrorWithPrefix("Some invalid char are present in input");
+        if (arg[i] == C_VAR) { var_present = true;}
         if (is_valid_special(arg[i]) || is_equal_char(arg[i])) {
             if (is_valid_special(last_char) && i != 0) {
                 return logErrorWithPrefix("Can't put 2 op in line");
@@ -73,6 +70,7 @@ static bool    parseOneLine(std::string arg) {
     }
     if (is_valid_special(last_char) || is_equal_char(last_char)) return logErrorWithPrefix("You absolutly cannot ends with an operator or equal");
     if (equal_count < 1) return logErrorWithPrefix(NO_EQUAL());
+    if (!var_present) return logErrorWithPrefix(NO_VAR());
 
     // more basis parse here
 

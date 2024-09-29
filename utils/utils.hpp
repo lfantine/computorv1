@@ -186,6 +186,7 @@ std::vector<std::string> split(const std::string& line, char delimiter) {
 }
 
 bool    isStrWhite(const std::string& str) {
+    std::cout << "str to check : " << str << std::endl;
     for (size_t i = 0; i < str.length(); i++) {
         if (!std::isspace(str[i])) {
             return false;
@@ -207,13 +208,14 @@ std::vector<std::string> split_chunks(const std::string& line, std::vector<char>
         // Si le caractère fait partie des délimiteurs, on ajoute l'élément courant
         if (delimiters.find(ch) != std::string::npos) {
             item = trim(item);
-            if (!item.empty() && !isStrWhite(item)) {
+            bool isStrW = isStrWhite(item);
+            if (!item.empty() && !isStrW) {
                 result.push_back(last_neg ? std::string("-" + item) : std::string("+" + item));
                 last_neg = false;
                 item.clear();
             }
             if (ch == '-') last_neg = true;
-            if (!isStrWhite(item)) {ops.push_back(ch);}
+            if (!isStrW) {ops.push_back(ch);}
         } else {
             item += ch;
         }
