@@ -40,7 +40,8 @@ std::string NO_EQUAL() {
 
 std::string NO_VAR() {
     std::string str = "You need at least 1 \'";
-    str += C_VAR + "\' !";
+    str.push_back(C_VAR);
+    str += + "\' !";
     return str;
 }
 
