@@ -26,8 +26,12 @@ const char C_VAR = 'X';
 
 struct parcel {
     char op = '?';
-    float value = 0;
+    float value = 0.0f;
+
+    // Constructeur avec valeurs par défaut
+    parcel(char o = '?', float v = 0.0f) : op(o), value(v) {}
 };
+
 
 // data class
 struct  chunk {

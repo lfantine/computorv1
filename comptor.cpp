@@ -14,10 +14,11 @@ void    registerChunk(std::vector<chunk>& reg, chunk& ck) {
         if (p.op == '/' && p.value == 0) {
             logErrorWithPrefix("cannot divid by 0.");
             throw new std::exception();
-        } else if (p.op == C_VAR && ck.power > 2) {
-            logErrorWithPrefix("The polynomial degree is strictly greater than 2, I can't solve.");
-            throw new std::exception();
-        }
+        } 
+        // else if (p.op == C_VAR && ck.power > 2) {
+        //     logErrorWithPrefix("The polynomial degree is strictly greater than 2, I can't solve.");
+        //     throw new std::exception();
+        // }
     }
 
     reg.push_back(ck);
@@ -62,10 +63,10 @@ void    chunkerize(const std::string& str, std::vector<chunk>& equat, std::vecto
 
                 if (std::isdigit(c)) {
                     
-                    ck.values.push_back({
+                    ck.values.push_back(parcel({
                         last_op, // 3 choice : ' ' , '/' , '*' 
                         std::stof(str.substr(i))
-                    });
+                    }));
 
                     //skip all nb
                     while (i < str.length() && (std::isdigit(str[i]) || str[i] == '.')) {
@@ -79,10 +80,10 @@ void    chunkerize(const std::string& str, std::vector<chunk>& equat, std::vecto
 
                     // std::cout << "Pass by C_VAR FOUND " << std::endl;
 
-                    ck.values.push_back({
+                    ck.values.push_back(parcel({
                         C_VAR,
                         0
-                    });
+                    }));
 
                     //skip white space
                     while (i < str.length() && std::isspace(str[i])) {i++;}
@@ -193,31 +194,66 @@ void combineChunk(chunk& hostCk, const chunk& invCk, bool phase = true) {
     }
 }
 
-void    reduce(std::vector<chunk>& equa) {
+void    reduce(std::vector<chunk>& equa, bool phase = true) {
     chunk c0 = initChunk();
     chunk c1 = initChunk();
     chunk c2 = initChunk();
 
+    std::vector<chunk> chunk_list;
+    chunk_list.clear();
+
     for (const chunk& ck : equa) {
-        // std::cout << "chunk to reduce : nb (" << ck.values.size() << "), value(" << ck.values[0].value << ") " << std::endl;
+        // std::cout << "chunk to reduce : nb (" << ck.values.size() << "), value(" << ck.values[0].value << ") " << "to power (" << ck.power << ") " << std::endl;
         if (ck.values[0].value == 0) {
             continue;
         }
-        if (ck.power == 0 || ck.values.size() == 1) {
-            combineChunk(c0, ck);
+        if (ck.power == 0 || (ck.values.size() == 1 && phase)) {
+            // std::cout << "continue of power : " << ck.power << std::endl;
+            combineChunk(c0, ck, phase);
         } else if (ck.power == 1) {
-            combineChunk(c1, ck);
+            combineChunk(c1, ck, phase);
         } else if (ck.power == 2) {
-            combineChunk(c2, ck);
+            combineChunk(c2, ck, phase);
         } else {
-            logErrorWithPrefix(" power invalid.");
+            //logErrorWithPrefix(" power invalid."); // ne pas mettre car la verif des power se fait apres avoir reduit les chunks
+            size_t idx = 0;
+            // std::cout << "here I pass ." << std::endl;
+            bool inserted = false;
+            for (const chunk& c : chunk_list) {
+                if (c.power == ck.power) {
+                    combineChunk(chunk_list[idx], ck, phase);
+                    inserted = true;
+                    break;
+                }
+                else if (c.power < ck.power) {
+                    break;
+                }
+                idx++;
+            }
+            if (!inserted) {
+                chunk   newC = initChunk();
+                combineChunk(newC, ck, phase);
+                chunk_list.insert(chunk_list.begin() + (idx <= chunk_list.size() ? idx : chunk_list.size()), newC);
+                // std::cout << "inseretd ." << std::endl;
+            }
         }
     }
 
     equa.clear();
+    for (const chunk& ck : chunk_list) {
+        // std::cout << "chunk to add to reduce here" << std::endl;
+        if (ck.power < 0) {
+            equa.push_back(ck);
+        }
+    }
     if (c0.values.size() > 0) equa.push_back(c0);
     if (c1.values.size() > 0) equa.push_back(c1);
     if (c2.values.size() > 0) equa.push_back(c2);
+    for (const chunk& ck : chunk_list) {
+        if (ck.power > 2 ) {
+            equa.push_back(ck);
+        }
+    }
 }
 
 void    reduce(std::vector<chunk>& equat, std::vector<chunk>& equal) {
@@ -227,30 +263,31 @@ void    reduce(std::vector<chunk>& equat, std::vector<chunk>& equal) {
     }
     equal.clear();
     
+    reduce(equat, false);
 
-    chunk c0 = initChunk();
-    chunk c1 = initChunk();
-    chunk c2 = initChunk();
+    // chunk c0 = initChunk();
+    // chunk c1 = initChunk();
+    // chunk c2 = initChunk();
 
-    for (const chunk& ck : equat) {
-        if (ck.values[0].value == 0) {
-            continue;
-        }
-        if (ck.power == 0) {
-            combineChunk(c0, ck, false);
-        } else if (ck.power == 1) {
-            combineChunk(c1, ck, false);
-        } else if (ck.power == 2) {
-            combineChunk(c2, ck, false);
-        } else {
-            logErrorWithPrefix(" power invalid.");
-        }
-    }
+    // for (const chunk& ck : equat) {
+    //     if (ck.values[0].value == 0) {
+    //         continue;
+    //     }
+    //     if (ck.power == 0) {
+    //         combineChunk(c0, ck, false);
+    //     } else if (ck.power == 1) {
+    //         combineChunk(c1, ck, false);
+    //     } else if (ck.power == 2) {
+    //         combineChunk(c2, ck, false);
+    //     } else {
+    //         // logErrorWithPrefix(" power invalid.");
+    //     }
+    // }
 
-    equat.clear();
-    if (c0.values.size() > 0) equat.push_back(c0);
-    if (c1.values.size() > 0) equat.push_back(c1);
-    if (c2.values.size() > 0) equat.push_back(c2);
+    // equat.clear();
+    // if (c0.values.size() > 0) equat.push_back(c0);
+    // if (c1.values.size() > 0) equat.push_back(c1);
+    // if (c2.values.size() > 0) equat.push_back(c2);
 }
 
 bool hasDecimalPart(float num) {
@@ -258,23 +295,16 @@ bool hasDecimalPart(float num) {
     return std::floor(num) != num;
 }
 
-// Fonction pour trouver le PGCD de deux entiers (utilise l'algorithme d'Euclide)
+// Fonction pour trouver le PGCD de deux entiers (algorithme d'Euclide)
 int pgdc(int a, int b) {
-    const int max = a > b ? a : b;
-    int pgdc = 1;
-    for (int i = 2; i <= max; i++ ) {
-        float moda = a;
-        float modb = b;
-        int na = 0;
-        int nb = 0;
-        while (moda >= i){moda -= i; na++;}
-        while (modb >= i){modb -= i; nb++;}
-        if (moda == 0 && modb == 0) {
-            pgdc = i;
-        }
+    while (b != 0) {
+        int temp = b;
+        b = a % b; // Reste de la division
+        a = temp;
     }
-    return pgdc;
+    return a; // Le PGCD est dans 'a'
 }
+
 
 std::string    reduceSquareRootFraction(const float d, const float denom) {
     float max = d > denom ? d : denom;
@@ -415,6 +445,14 @@ int deg1(float b, float c) {
     return 0;
 }
 
+void    verifChunkRegistered(const std::vector<chunk>& equat) {
+    for (const chunk& ck : equat) {
+        if (ck.power < 0 || ck.power > 2) {
+            throw logErrorWithPrefix(" power invalid [ power " + std::to_string(ck.power) + " is not accepted in a polynome of second degre ] .");
+        }
+    }
+}
+
 int main(int argc, char** argv) {
     if (!basisArgsParse(argc, const_cast<const char**>(argv))) return 1;
 
@@ -470,6 +508,13 @@ int main(int argc, char** argv) {
     std::cout << "\n 3 -> Reduce Together :" << std::endl;
     reduce(equat, equal);
     printEqua(equat, equal);
+
+
+    try {
+        verifChunkRegistered(equat);
+    } catch (...) {
+        return 1;
+    }
 
     float temp_v = 0;
     for (const chunk& ck : equat) {

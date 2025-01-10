@@ -2,7 +2,7 @@ NAME	= computor
 SRCS	= comptor.cpp
 
 OBJS	= $(SRCS:.cpp=.o)
-FLAGS	= -Wextra -Wall -Werror
+FLAGS	= -Wextra -Wall -Werror -std=c++11
 CC		= g++
 INCS	= .
 
