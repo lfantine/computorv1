@@ -446,10 +446,19 @@ int deg1(float b, float c) {
 }
 
 void    verifChunkRegistered(const std::vector<chunk>& equat) {
+    bool thereIsX = false;
     for (const chunk& ck : equat) {
+        if (ck.X && !thereIsX) {
+            thereIsX = true;
+        }
         if (ck.power < 0 || ck.power > 2) {
             throw logErrorWithPrefix(" power invalid [ power " + std::to_string(ck.power) + " is not accepted in a polynome of second degre ] .");
         }
+    }
+    if (!thereIsX) {
+
+        std::cout  << std::endl << "There is no " << C_VAR << " in the equation so there is no solution." << std::endl;
+        throw new std::exception();
     }
 }
 
