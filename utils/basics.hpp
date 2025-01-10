@@ -1,6 +1,5 @@
 #pragma once
 #include "./utils.hpp"
-#include <algorithm>
 #include <string>
 
 inline bool is_equal_char(char c) {

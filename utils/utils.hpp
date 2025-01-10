@@ -3,8 +3,28 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <algorithm>
-#include <cmath>
+
+
+// Implémentation personnalisée de sqrt
+namespace my_math {
+    double sqrt(double x) {
+        std::cout << "Calcul de la racine carrée de " << x << std::endl;
+        if (x < 0) {
+            // std::cerr << "Erreur : Racine carrée d'un nombre négatif.\n";
+            return -1;
+        }
+        double guess = x / 2.0;
+        double epsilon = 1e-6;
+        double prev_guess;
+
+        do {
+            prev_guess = guess;
+            guess = (guess + x / guess) / 2.0; // Méthode de Newton
+        } while (std::abs(guess - prev_guess) > epsilon);
+
+        return guess;
+    }
+}
 
 // ANSI escape codes for text colors
 const std::string RESET = "\033[0m";

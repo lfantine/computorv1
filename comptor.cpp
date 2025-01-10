@@ -4,10 +4,6 @@
 #include <vector>
 #include <string>
 
-// void    reducion(std::string& str) {
-
-// }
-
 void    registerChunk(std::vector<chunk>& reg, chunk& ck) {
     // test is valid chunk
     for (const parcel& p : ck.values) {
@@ -383,7 +379,7 @@ std::string     reducedFraction(float nom, float denom, const bool isD = false, 
     }
 }
 
-void    dNeg(const float a, const float b, const float c, const float d) {
+void    dNeg(const float a, const float b, const float c, const float d) { // negative
     std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
     std::cout << "\n There are 2 solutions with i a complexe number (i^2=-1) : ";
     const float aa = 2 * a;
@@ -392,7 +388,7 @@ void    dNeg(const float a, const float b, const float c, const float d) {
     std::cout << "\n-> " << C_VAR << " = (-b+i√(Δ))/2a " << " = " << "(-(" << b <<")+i√(" << d <<"))/2(" << a <<") = " << "(-(" << b <<")+i√(" << d <<"))/"<< aa <<" = " << reducedFraction(mb, aa) << " + i" << reducedFraction(std::sqrt(std::abs(d)), aa, true, std::abs(d));
 }
 
-void    dPos(const float a, const float b, const float c, const float d) {
+void    dPos(const float a, const float b, const float c, const float d) { // positive
     std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )";
     std::cout << "\n There are 2 solutions : ";
     // const float r1 = (-b - (std::sqrt(d))) / (2 * a);
@@ -416,7 +412,7 @@ void    dPos(const float a, const float b, const float c, const float d) {
     }
 }
 
-void    d0(const float a, const float b, const float c, const float d) {
+void    d0(const float a, const float b, const float c, const float d) {  // == 0
     std::cout << "\n( with : a = (" << a << ") , b = (" << b << ") , c = (" << c << ") , d = (" << d << ") )" << std::endl;
     std::cout << "\n The solution of this equaton is " << C_VAR << " = " << "-b/2a" << " = " << "-(" << b << ")" << "/2(" << a << ")"  << " = " << reducedFraction((b * -1), (2 * a));
 }
@@ -446,18 +442,22 @@ int deg1(float b, float c) {
 }
 
 void    verifChunkRegistered(const std::vector<chunk>& equat) {
+    // std::cout << "\n*------------- Verif Chunk Registered --------------------*" << std::endl;
     bool thereIsX = false;
     for (const chunk& ck : equat) {
-        if (ck.X && !thereIsX) {
+        // std::cout << "chunk : X " << ck.X << " power " << ck.power << " value " << ck.values[0].value << std::endl;
+        if ((ck.X || ck.power > 0 || (ck.power == 0 && ck.values[0].value == 0)) && !thereIsX) {
             thereIsX = true;
         }
-        if (ck.power < 0 || ck.power > 2) {
-            throw logErrorWithPrefix(" power invalid [ power " + std::to_string(ck.power) + " is not accepted in a polynome of second degre ] .");
+        if (ck.power > 2) {
+            throw logErrorWithPrefix(" The polynomial degree is strictly greater than 2, I can't solve..");
+        }
+        else if (ck.power < 0) {
+            throw logErrorWithPrefix(" The polynomial degree can't accept power bellow 0, I can't solve..");
         }
     }
     if (!thereIsX) {
-
-        std::cout  << std::endl << "There is no " << C_VAR << " in the equation so there is no solution." << std::endl;
+        std::cout  << std::endl << "There is no solutions to the equation." << std::endl;
         throw new std::exception();
     }
 }
@@ -465,9 +465,6 @@ void    verifChunkRegistered(const std::vector<chunk>& equat) {
 int main(int argc, char** argv) {
     if (!basisArgsParse(argc, const_cast<const char**>(argv))) return 1;
 
-    // float a;
-    // float b;
-    // float c;
     std::vector<chunk>  equat = {};
     std::vector<chunk>  equal = {};
 
