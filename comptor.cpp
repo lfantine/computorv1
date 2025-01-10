@@ -288,7 +288,7 @@ void    reduce(std::vector<chunk>& equat, std::vector<chunk>& equal) {
 
 bool hasDecimalPart(float num) {
     // Comparer le nombre avec sa partie entière (tronquée)
-    return std::floor(num) != num;
+    return my_math::floor(num) != num;
 }
 
 // Fonction pour trouver le PGCD de deux entiers (algorithme d'Euclide)

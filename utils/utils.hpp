@@ -8,7 +8,7 @@
 // Implémentation personnalisée de sqrt
 namespace my_math {
     double sqrt(double x) {
-        std::cout << "Calcul de la racine carrée de " << x << std::endl;
+        // std::cout << "Calcul de la racine carrée de " << x << std::endl;
         if (x < 0) {
             // std::cerr << "Erreur : Racine carrée d'un nombre négatif.\n";
             return -1;
@@ -23,6 +23,20 @@ namespace my_math {
         } while (std::abs(guess - prev_guess) > epsilon);
 
         return guess;
+    }
+    double floor(double x) {
+        // Vérifie si le nombre est déjà un entier
+        if (x == static_cast<int>(x)) {
+            return x;
+        }
+
+        // Si x est positif, tronque la partie décimale
+        if (x > 0) {
+            return static_cast<int>(x);
+        }
+
+        // Si x est négatif, tronque la partie décimale et soustrait 1
+        return static_cast<int>(x) - 1;
     }
 }
 
